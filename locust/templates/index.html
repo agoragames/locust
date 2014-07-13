@@ -116,10 +116,10 @@
                 <div style="display:none;">
                     <table id="errors" class="stats">
                         <thead>
-                            <th class="error_count stats_label" data-sortkey="1"># fails</th>
+                            <th class="error_count stats_label numeric" href="#" data-sortkey="occurences"># fails</th>
                             <th class="stats_label" href="#" data-sortkey="method">Method</th>
                             <th class="stats_label" href="#" data-sortkey="name">Name</th>
-                            <th class="error_type stats_label" data-sortkey="0">Type</th>
+                            <th class="error_type stats_label" href="#" data-sortkey="error">Type</th>
                         </thead>
                         <tbody>
                         </tbody>
@@ -195,7 +195,7 @@
     <script type="text/x-jqote-template" id="errors-template">
         <![CDATA[
         <tr class="<%=(alternate ? "dark" : "")%>">
-            <td><%= this.occurences %></td>
+            <td class="numeric"><%= this.occurences %></td>
             <td><%= this.method %></td>
             <td><%= this.name %></td>
             <td><%= function(e) { return e.replace("<", "&lt;"); }(this.error) %></td>
