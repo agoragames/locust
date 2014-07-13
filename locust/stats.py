@@ -1,6 +1,5 @@
 import time
 import gevent
-import hashlib
 
 import events
 from exception import StopLocust
@@ -178,13 +177,11 @@ class StatsEntry(object):
         self.num_failures += 1
         self.stats.num_failures += 1
         error = error.args[0].__class__.__name__ if isinstance(error, ConnectionError) else str(error)
-        key = StatsError.create_key(self.method, self.name, error)
-        entry = self.stats.errors.get(key)
-        if not entry:
-            entry = StatsError(self.method, self.name, error)
-            self.stats.errors[key] = entry
-
-        entry.occured()
+        key = hash(self.method + self.name + error)
+        if key in self.stats.errors:
+            self.stats.errors[key].occurences += 1
+        else:
+            self.stats.errors[key] = StatsError(self.method, self.name, error, 1)
 
     @property
     def fail_ratio(self):
@@ -364,14 +361,6 @@ class StatsError(object):
         self.error = error
         self.occurences = occurences
 
-    @classmethod
-    def create_key(cls, method, name, error):
-        key = "%s.%s.%r" % (method, name, error)
-        return hashlib.md5(key).hexdigest()
-
-    def occured(self):
-        self.occurences += 1
-
     def to_name(self):
         return "%s %s: %r" % (self.method, 
             self.name, repr(self.error))
@@ -383,16 +372,6 @@ class StatsError(object):
             "error": self.error,
             "occurences": self.occurences
         }
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            data["method"], 
-            data["name"], 
-            data["error"], 
-            data["occurences"]
-        )
-
 
 def avg(values):
     return sum(values, 0.0) / max(len(values), 1)
@@ -426,7 +405,7 @@ def on_request_failure(request_type, name, response_time, exception):
 
 def on_report_to_master(client_id, data):
     data["stats"] = [global_stats.entries[key].get_stripped_report() for key in global_stats.entries.iterkeys() if not (global_stats.entries[key].num_requests == 0 and global_stats.entries[key].num_failures == 0)]
-    data["errors"] =  dict([(k, e.to_dict()) for k, e in global_stats.errors.iteritems()])
+    data["errors"] = [e.to_dict() for e in global_stats.errors.itervalues()]
     global_stats.errors = {}
 
 def on_slave_report(client_id, data):
@@ -438,11 +417,13 @@ def on_slave_report(client_id, data):
         global_stats.entries[request_key].extend(entry, full_request_history=True)
         global_stats.last_request_timestamp = max(global_stats.last_request_timestamp, entry.last_request_timestamp)
 
-    for error_key, error in data["errors"].iteritems():
-        if error_key not in global_stats.errors:
-            global_stats.errors[error_key] = StatsError.from_dict(error)
-        else:
+    for error in data["errors"]:
+        key = hash(error["method"] + error["name"] + error["error"])
+        if key in global_stats.errors:
             global_stats.errors[error_key].occurences += error["occurences"]
+        else:
+            global_stats.errors[error_key] = StatsError(error["method"], error["name"], error["error"], error["occurences"])
+
 
 events.request_success += on_request_success
 events.request_failure += on_request_failure
