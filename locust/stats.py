@@ -4,6 +4,7 @@ import hashlib
 
 import events
 from exception import StopLocust
+from requests.exceptions import ConnectionError
 from log import console_logger
 
 STATS_NAME_WIDTH = 60
@@ -176,6 +177,7 @@ class StatsEntry(object):
     def log_error(self, error):
         self.num_failures += 1
         self.stats.num_failures += 1
+        error = error.args[0].__class__.__name__ if isinstance(error, ConnectionError) else str(error)
         key = StatsError.create_key(self.method, self.name, error)
         entry = self.stats.errors.get(key)
         if not entry:
@@ -378,7 +380,7 @@ class StatsError(object):
         return {
             "method": self.method,
             "name": self.name,
-            "error": repr(self.error),
+            "error": self.error,
             "occurences": self.occurences
         }
 
