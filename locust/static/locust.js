@@ -137,7 +137,7 @@ function generateChartData(input) {
   ];
   var now = new Date();
 
-  $.each(input, function( index, item ) {
+  input.forEach(function( item, index) {
     var ticksAgo = input.length - index;
     var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
     data[0]["data"][timeMark] = item[0];
@@ -155,7 +155,7 @@ function downloadRPSData() {
   chart = [ [ 'Time', 'Users', 'Req/s' ] ]
   var now = new Date();
 
-  $.each(reports, function( index, item ) {
+  reports.forEach(function( item, index) {
     var ticksAgo = reports.length - index;
     var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
     chart.push([ timeMark, item[0], item[1] ])
