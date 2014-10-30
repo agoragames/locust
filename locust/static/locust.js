@@ -10,6 +10,11 @@ $(window).ready(function() {
       updateStats();
       updateExceptions();
     }
+
+    $("#download-requests-timeline").click(function(e) {
+      e.preventDefault();
+      downloadRPSData();
+    });
 });
 
 $("#box_stop a").click(function(event) {
@@ -144,6 +149,26 @@ function generateChartData(input) {
 
 function extractChartData(report) {
   return [report.user_count, report.total_rps, report.fail_ratio];
+}
+
+function downloadRPSData() {
+  chart = [ [ 'Time', 'Users', 'Req/s' ] ]
+  var now = new Date();
+
+  $.each(reports, function( index, item ) {
+    var ticksAgo = reports.length - index;
+    var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
+    chart.push([ timeMark, item[0], item[1] ])
+  });
+
+  chart = chart.map(function( row, index ) {
+    return row.join(",");
+  });
+
+  var pom = document.createElement('a');
+  pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent( chart.join("\n") ));
+  pom.setAttribute('download', 'requests_timeline.csv');
+  pom.click();
 }
 
 function updateStats() {
