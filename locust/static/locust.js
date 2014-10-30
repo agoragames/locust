@@ -152,23 +152,23 @@ function extractChartData(report) {
 }
 
 function downloadRPSData() {
-  chart = [ [ 'Time', 'Users', 'Req/s' ] ]
+  chart = [ [ 'Time', 'Users', 'Req/s', 'Fail Ratio' ] ]
   var now = new Date();
 
   reports.forEach(function( item, index) {
     var ticksAgo = reports.length - index;
     var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
-    chart.push([ timeMark, item[0], item[1] ])
+    chart.push([ timeMark, item[0], item[1], item[2] ])
   });
 
   chart = chart.map(function( row, index ) {
     return row.join(",");
   });
 
-  var pom = document.createElement('a');
-  pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent( chart.join("\n") ));
-  pom.setAttribute('download', 'requests_timeline.csv');
-  pom.click();
+  var rps_doc = document.createElement('a');
+  rps_doc.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent( chart.join("\n") ));
+  rps_doc.setAttribute('download', 'requests_timeline.csv');
+  rps_doc.click();
 }
 
 function updateStats() {
