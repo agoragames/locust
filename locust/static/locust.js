@@ -1,6 +1,14 @@
+var shouldRefresh = false;
+
 $(window).ready(function() {
     if($("#locust_count").length > 0) {
         $("#locust_count").focus().select();
+    }
+
+    if(["hatching", "running"].indexOf($("body").attr("class")) != -1) {
+      shouldRefresh = true;
+      updateStats();
+      updateExceptions();
     }
 });
 
@@ -8,6 +16,7 @@ $("#box_stop a").click(function(event) {
     event.preventDefault();
     $.get($(this).attr("href"));
     $("body").attr("class", "stopped");
+    shouldRefresh = false;
     $(".box_stop").hide();
     $("a.new_test").show();
     $("a.edit_test").hide();
@@ -57,6 +66,9 @@ $('#swarm_form').submit(function(event) {
                 $("a.edit_test").fadeIn();
                 $(".user_count").fadeIn();
             }
+            shouldRefresh = true;
+            updateStats();
+            updateExceptions();
         }
     );
 });
@@ -92,6 +104,7 @@ var sortBy = function(field, reverse, primer){
 var sortAttribute = "name";
 var desc = false;
 var report;
+var reports = [];
 $(".stats_label").click(function(event) {
     event.preventDefault();
     sortAttribute = $(this).attr("data-sortkey");
@@ -108,9 +121,35 @@ $(".stats_label").click(function(event) {
     $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
 });
 
+/**
+* Needs to map the inputs to an array of { name: "Series X", data: { time: value, time_1: value_1 } }
+* Google only supports two y-axes, so Users vs. Req/s it is then.
+**/
+function generateChartData(input) {
+  var data = [
+    { "name": "Users", "data": {} },
+    { "name": "Req/s", "data": {} }
+  ];
+  var now = new Date();
+
+  $.each(input, function( index, item ) {
+    var ticksAgo = input.length - index;
+    var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
+    data[0]["data"][timeMark] = item[0];
+    data[1]["data"][timeMark] = item[1];
+  });
+
+  return data;
+}
+
+function extractChartData(report) {
+  return [report.user_count, report.total_rps, report.fail_ratio];
+}
+
 function updateStats() {
     $.get('/stats/requests', function (data) {
         report = JSON.parse(data);
+        reports.push( extractChartData(report) );
         $("#total_rps").html(Math.round(report.total_rps*100)/100);
         //$("#fail_ratio").html(Math.round(report.fail_ratio*10000)/100);
         $("#fail_ratio").html(Math.round(report.fail_ratio*100));
@@ -131,16 +170,24 @@ function updateStats() {
         $('#stats tbody').jqoteapp(stats_tpl, sortedStats);
         alternate = false;
         $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
-        setTimeout(updateStats, 2000);
+
+        // Making a charty chart chart
+        var data = generateChartData(reports);
+        new Chartkick.LineChart("charty-charty-chart", data, {
+          library: {
+            series: { 1: { targetAxisIndex: 1 } },
+            legend: { position: 'below' }
+          }
+        });
+
+        if(shouldRefresh) { setTimeout(updateStats, 2000); }
     });
 }
-updateStats();
 
 function updateExceptions() {
     $.get('/exceptions', function (data) {
         $('#exceptions tbody').empty();
         $('#exceptions tbody').jqoteapp(exceptions_tpl, data.exceptions);
-        setTimeout(updateExceptions, 5000);
+        if(shouldRefresh) {  setTimeout(updateExceptions, 5000); }
     });
 }
-updateExceptions();

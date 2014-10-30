@@ -130,6 +130,7 @@ a {
     -webkit-border-radisu: 5px;
     border: 3px solid #eee;
     background: #111717;
+    z-index: 100;
 }
 
 .stopped .edit {display: none;}
@@ -140,6 +141,7 @@ a {
     -webkit-border-radisu: 5px;
     border: 3px solid #eee;
     background: #111717;
+    z-index: 100;
 }
 .running .start, .hatching .start {display: none;}
 
@@ -240,7 +242,9 @@ ul.tabs {
     margin: 0;
     padding: 0;
     list-style: none;
+    overflow: auto;
     margin-top: 0px;
+    margin-bottom: 1rem;
 }
 ul.tabs li {
     display: block;
