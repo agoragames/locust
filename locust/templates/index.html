@@ -201,7 +201,7 @@
             <td class="numeric"><%= this.occurences %></td>
             <td><%= this.method %></td>
             <td><%= this.name %></td>
-            <td><%= function(e) { return e.replace("<", "&lt;"); }(this.error) %></td>
+            <td><%! this.error %></td>
         </tr>
         ]]>
     </script>
@@ -209,8 +209,8 @@
         <![CDATA[
         <tr>
             <td class="occurences"><%= this.count %></td>
-            <td class="traceback" title="Occured on: <%= this.nodes %>"><%= function(e) { return e.replace("<", "&lt;"); }(this.traceback) %>
-<%= function(e) { return e.replace("<", "&lt;"); }(this.msg) %></td>
+            <td class="traceback" title="Occurred on: <%= this.nodes %>"><%! this.traceback %>
+<%! this.msg %></td>
         </tr>
         ]]>
     </script>
