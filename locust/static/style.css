@@ -185,7 +185,7 @@ a {
     color: #6d6d6d;
     border-bottom: 1px solid #292f2f;
 }
-.status tr.total td {
+.status tr:last-of-type td {
     border-top: 1px solid #292f2f;
 }
 .status td, .status th {
@@ -197,7 +197,7 @@ a {
 .status th.numeric {
     text-align: right;
 }
-.status tr.dark {
+.status tr:nth-child(even) {
     background:#0d1111;
 }
 .status th {

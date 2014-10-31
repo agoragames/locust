@@ -50,8 +50,6 @@ $(".close_link").click(function(event) {
     $(this).parent().parent().hide();
 });
 
-var alternate = false;
-
 $("ul.tabs").tabs("div.panes > div");
 
 var stats_tpl = $('#stats-template');
@@ -115,15 +113,11 @@ $(".stats_label").click(function(event) {
     sortAttribute = $(this).attr("data-sortkey");
     desc = !desc;
 
-    $('#stats tbody').empty();
-    $('#errors tbody').empty();
-    alternate = false;
     totalRow = report.stats.pop()
     sortedStats = (report.stats).sort(sortBy(sortAttribute, desc))
     sortedStats.push(totalRow)
-    $('#stats tbody').jqoteapp(stats_tpl, sortedStats);
-    alternate = false;
-    $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
+    $('#stats tbody').jqotesub(stats_tpl, sortedStats);
+    $('#errors tbody').jqotesub(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
 });
 
 /**
@@ -152,13 +146,13 @@ function extractChartData(report) {
 }
 
 function downloadRPSData() {
-  chart = [ [ 'Time', 'Users', 'Req/s', 'Fail Ratio' ] ]
+  var chart = [ [ 'Time', 'Users', 'Req/s', 'Fail Ratio' ] ];
   var now = new Date();
 
   reports.forEach(function( item, index) {
     var ticksAgo = reports.length - index;
     var timeMark = new Date(now - (ticksAgo * 2000)); // JS Dates are in millis, and a tick is 2 seconds.
-    chart.push([ timeMark, item[0], item[1], item[2] ])
+    chart.push([ timeMark, item[0], item[1], item[2] ]);
   });
 
   chart = chart.map(function( row, index ) {
@@ -176,7 +170,6 @@ function updateStats() {
         report = JSON.parse(data);
         reports.push( extractChartData(report) );
         $("#total_rps").html(Math.round(report.total_rps*100)/100);
-        //$("#fail_ratio").html(Math.round(report.fail_ratio*10000)/100);
         $("#fail_ratio").html(Math.round(report.fail_ratio*100));
         $("#status_text").html(report.state);
         $("#userCount").html(report.user_count);
@@ -184,17 +177,11 @@ function updateStats() {
         if (report.slave_count)
             $("#slaveCount").html(report.slave_count)
 
-        $('#stats tbody').empty();
-        $('#errors tbody').empty();
-
-        alternate = false;
-
         totalRow = report.stats.pop()
         sortedStats = (report.stats).sort(sortBy(sortAttribute, desc))
         sortedStats.push(totalRow)
-        $('#stats tbody').jqoteapp(stats_tpl, sortedStats);
-        alternate = false;
-        $('#errors tbody').jqoteapp(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
+        $('#stats tbody').jqotesub(stats_tpl, sortedStats);
+        $('#errors tbody').jqotesub(errors_tpl, (report.errors).sort(sortBy(sortAttribute, desc)));
 
         // Making a charty chart chart
         var data = generateChartData(reports);

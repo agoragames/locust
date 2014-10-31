@@ -181,7 +181,7 @@
     <script type="text/javascript" src="/static/jquery.tools.min.js"></script>
     <script type="text/x-jqote-template" id="stats-template">
         <![CDATA[
-        <tr class="<%=(alternate ? "dark" : "")%> <%=(this.name == "Total" ? "total" : "")%>">
+        <tr>
             <td><%= (this.method ? this.method : "") %></td>
             <td><%= this.name %></td>
             <td class="numeric"><%= this.num_requests %></td>
@@ -193,28 +193,25 @@
             <td class="numeric"><%= Math.round(this.avg_content_length) %></td>
             <td class="numeric"><%= Math.round(this.current_rps*100)/100 %></td>
         </tr>
-        <% alternate = !alternate; %>
         ]]>
     </script>
     <script type="text/x-jqote-template" id="errors-template">
         <![CDATA[
-        <tr class="<%=(alternate ? "dark" : "")%>">
+        <tr>
             <td class="numeric"><%= this.occurences %></td>
             <td><%= this.method %></td>
             <td><%= this.name %></td>
             <td><%= function(e) { return e.replace("<", "&lt;"); }(this.error) %></td>
         </tr>
-        <% alternate = !alternate; %>
         ]]>
     </script>
     <script type="text/x-jqote-template" id="exceptions-template">
         <![CDATA[
-        <tr class="<%=(alternate ? "dark" : "")%>">
+        <tr>
             <td class="occurences"><%= this.count %></td>
             <td class="traceback" title="Occured on: <%= this.nodes %>"><%= function(e) { return e.replace("<", "&lt;"); }(this.traceback) %>
 <%= function(e) { return e.replace("<", "&lt;"); }(this.msg) %></td>
         </tr>
-        <% alternate = !alternate; %>
         ]]>
     </script>
     <script type="text/javascript" src="/static/locust.js"></script>
