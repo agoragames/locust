@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages, Command
 import sys, os
 
-version = '0.7.2'
+version = '0.7.2.ag0'
 
 
 class Unit2Discover(Command):
@@ -23,7 +23,7 @@ class Unit2Discover(Command):
 
 
 setup(
-    name='locustio',
+    name='locustio-agora',
     version=version,
     description="Website load testing framework",
     long_description="""Locust is a python utility for doing easy, distributed load testing of a web site""",
@@ -37,8 +37,8 @@ setup(
         "Intended Audience :: System Administrators",
     ],
     keywords='',
-    author='Jonatan Heyman, Carl Bystrom, Joakim Hamrén, Hugo Heyman',
-    author_email='',
+    author='Jonatan Heyman, Carl Bystrom, Joakim Hamrén, Hugo Heyman, Matt Wilson',
+    author_email='mwilson@agoragames.com',
     url='http://locust.io',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
